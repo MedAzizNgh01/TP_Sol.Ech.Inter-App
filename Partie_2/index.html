@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Personnages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            flex: 1;
+        }
+        #btnFiltrer {
+            background-color: #2196F3;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #resultats {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+        .error {
+            color: red;
+        }
+        .personnage-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .personnage-item:last-child {
+            border-bottom: none;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test API Personnages</h1>
+    
+    <div class="form-group">
+        <label for="token">Token d'authentification:</label>
+        <input type="text" id="token" value="token_secret_123" placeholder="Entrez votre token">
+    </div>
+    
+    <div class="form-group">
+        <label for="prenom">Filtrer par prénom:</label>
+        <input type="text" id="prenom" placeholder="Entrez un prénom">
+    </div>
+    
+    <div class="buttons">
+        <button id="btnAfficherTous">Afficher tous les personnages</button>
+        <button id="btnFiltrer">Filtrer par prénom</button>
+    </div>
+    
+    <div id="resultats">
+        <p class="loading">Cliquez sur un bouton pour charger les données</p>
+    </div>
+
+    <script>
+        function fetchPersonnages(useFilter = false) {
+            const token = document.getElementById('token').value;
+            const prenom = document.getElementById('prenom').value;
+            const resultatDiv = document.getElementById('resultats');
+            
+            // Validation
+            if (!token) {
+                resultatDiv.innerHTML = '<p class="error">Veuillez entrer un token</p>';
+                return;
+            }
+            
+            if (useFilter && !prenom) {
+                resultatDiv.innerHTML = '<p class="error">Veuillez entrer un prénom pour filtrer</p>';
+                return;
+            }
+            
+            resultatDiv.innerHTML = '<p class="loading">Chargement en cours...</p>';
+            
+            // Construction de l'URL
+            let url = 'http://localhost:8000/personnages';
+            if (useFilter) {
+                url += `?prenom=${encodeURIComponent(prenom)}`;
+            }
+            
+            // Requête API
+            fetch(url, {
+                headers: {
+                    'x-auth-token': token,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.detail || `Erreur ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    let html = '<ul>';
+                    data.forEach(personnage => {
+                        html += `
+                        <li class="personnage-item">
+                            <strong>Nom:</strong> ${personnage.nom || 'N/A'}<br>
+                            <strong>Profession:</strong> ${personnage.profession || 'N/A'}<br>
+                            <strong>Âge:</strong> ${personnage.age || 'N/A'}<br>
+                            <strong>Univers:</strong> ${personnage.univers || 'N/A'}
+                        </li>`;
+                    });
+                    html += '</ul>';
+                    resultatDiv.innerHTML = html;
+                } else {
+                    resultatDiv.innerHTML = '<p>Aucun personnage trouvé</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                resultatDiv.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
+            });
+        }
+
+        // Événements
+        document.getElementById('btnAfficherTous').addEventListener('click', () => fetchPersonnages(false));
+        document.getElementById('btnFiltrer').addEventListener('click', () => fetchPersonnages(true));
+    </script>
+</body>
+</html>

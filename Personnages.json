@@ -1,0 +1,35 @@
+[
+    {
+      "id": 1,
+      "nom": "Harry Potter",
+      "profession": "Sorcier",
+      "age": 17,
+      "univers": "Harry Potter",
+      "score": 85
+    },
+    {
+      "id": 2,
+      "nom": "Ron Weasley",
+      "profession": "Sorcier",
+      "age": 17,
+      "univers": "Harry Potter",
+      "score": 75
+    },
+    {
+      "id": 3,
+      "nom": "Hermione Granger",
+      "profession": "Sorcière",
+      "age": 17,
+      "univers": "Harry Potter",
+      "score": 90
+    },
+    {
+      "id": 4,
+      "nom": "Albus Dumbledore",
+      "profession": "Directeur de Poudlard",
+      "age": 115,
+      "univers": "Harry Potter",
+      "score": 55
+    }
+  ]
+  

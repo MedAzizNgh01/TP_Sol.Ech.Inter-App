@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Personnages</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #personnages-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .personnage {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .personnage:last-child {
+            border-bottom: none;
+        }
+        .personnage h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .detail-item {
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .detail-item strong {
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des Personnages</h1>
+    <button onclick="chargerPersonnages()">Afficher les personnages</button>
+    
+    <div id="personnages-list">
+        <!-- Les personnages apparaîtront ici -->
+    </div>
+
+    <script>
+        async function chargerPersonnages() {
+            const liste = document.getElementById("personnages-list");
+            liste.innerHTML = "<p>Chargement en cours...</p>";
+            
+            try {
+                const response = await fetch("http://localhost:8000/personnages", {
+                    headers: {
+                        "x-auth-token": "token_secret_123"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur ${response.status}`);
+                }
+
+                const personnages = await response.json();
+                afficherPersonnages(personnages);
+                
+            } catch (error) {
+                liste.innerHTML = `<p style="color: red;">Erreur : ${error.message}</p>`;
+            }
+        }
+
+        function afficherPersonnages(personnages) {
+            const liste = document.getElementById("personnages-list");
+            
+            if (personnages.length === 0) {
+                liste.innerHTML = "<p>Aucun personnage trouvé</p>";
+                return;
+            }
+
+            let html = '';
+            personnages.forEach(p => {
+                html += `
+                <div class="personnage">
+                    <h3>${p.nom}</h3>
+                    <div class="details">
+                        <div class="detail-item">
+                            <strong>Univers :</strong> ${p.univers}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Profession :</strong> ${p.profession}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Âge :</strong> ${p.age} ans
+                        </div>
+                        <div class="detail-item">
+                            <strong>ID :</strong> ${p.id}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            liste.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
